@@ -221,7 +221,7 @@
                 <h2 style="margin: 0;">Aula Inteligente</h2>
             </div>
             <p>¡Bienvenido! Aprende Matemáticas y Español a tu ritmo.</p>
-            <button style="padding: 16px; font-size: 1.1rem; background-color: #f97316; margin-top: 15px;" onclick="controladorAutenticacion.mostrarRegistro()">¡COMENZAR EL APRENDIZAJE!</button>
+            <button style="padding: 16px; font-size: 1.1rem; background-color: #f97316; margin-top: 15px;">¡COMENZAR EL APRENDIZAJE!</button>
 
             <!-- CONTENEDOR DE DOS COLUMNAS DE ACCESO -->
             <div class="secciones-container">
@@ -231,16 +231,17 @@
                     <div class="titulo-seccion">SECCIÓN ALUMNOS</div>
                     <input type="text" id="log-alumno-usuario" placeholder="Nombre o ID (nombre)">
                     <input type="password" id="log-alumno-password" placeholder="Contraseña">
-                    <!-- Abre la pantalla independiente de registro de alumno -->
+                    <!-- Abre la pantalla independiente de registro de alumno en una pestaña nueva -->
                     <span class="link-sub" onclick="window.open('registro-alumno.html', '_blank')">Crear cuenta de Alumno</span>
                 </div>
 
                 <!-- SECCIÓN MAESTROS -->
                 <div class="columna-maestros">
                     <div class="titulo-seccion">SECCIÓN MAESTROS</div>
-                    <button class="btn-maestro" onclick="controladorAutenticacion.mostrarRegistroProfesor()">Soy Maestro</button>
-                    <span class="link-sub" onclick="controladorAutenticacion.mostrarRegistroProfesor()">Registrarse como Maestro</span>
-                    <span class="link-sub" onclick="controladorAutenticacion.mostrarLoginProfesor()">Acceso Maestros</span>
+                    <!-- Abre la pantalla independiente de registro de maestro con código secreto -->
+                    <button class="btn-maestro" onclick="window.open('registro-maestro.html', '_blank')">Soy Maestro</button>
+                    <span class="link-sub" onclick="window.open('registro-maestro.html', '_blank')">Registrarse como Maestro</span>
+                    <span class="link-sub" onclick="alert('Próximamente: Panel de acceso para maestros en Firestore')">Acceso Maestros</span>
                 </div>
 
             </div>

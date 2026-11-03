@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Maestro - Aula Inteligente</title>
+    <style>
+        :root {
+            --primary: #059669; /* Tono verde distintivo para maestros */
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .registro-container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            box-sizing: border-box;
+            text-align: center;
+            border: 3px solid #d1fae5;
+        }
+        h2 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        p {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: var(--primary);
+        }
+        .btn-registrar {
+            background-color: #059669;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(5, 150, 105, 0.3);
+            transition: background-color 0.2s;
+        }
+        .btn-registrar:hover {
+            background-color: #047857;
+        }
+        .link-volver {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: underline;
+            display: block;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="registro-container">
+        <h2>👨‍🏫 Registro de Maestros</h2>
+        <p>Sección Docente - Credencial de Acceso Restringido</p>
+
+        <div class="input-group">
+            <label>Nombre Completo:</label>
+            <input type="text" id="doc-nombre" placeholder="Prof. Nombre Apellido">
+        </div>
+
+        <div class="input-group">
+            <label>ID / Usuario Docente:</label>
+            <input type="text" id="doc-usuario" placeholder="Ej. prof.cruz">
+        </div>
+
+        <div class="input-group">
+            <label>Contraseña (Mín. 8 caracteres):</label>
+            <input type="password" id="doc-password" placeholder="Mínimo 8 caracteres">
+        </div>
+
+        <div class="input-group">
+            <label>Código Secreto de Autorización:</label>
+            <input type="password" id="doc-token" placeholder="Clave proporcionada por la escuela">
+        </div>
+
+        <button class="btn-registrar" id="btn-registrar-maestro">🚀 ¡REGISTRAR CUENTA MAESTRO!</button>
+        
+        <span class="link-volver" onclick="window.close()">Cerrar ventana</span>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCR66VKjOx8iXJMxEBLejY6qLKIZ53FVLw",
+            authDomain: "aula-inteligente-9a55e.firebaseapp.com",
+            projectId: "aula-inteligente-9a55e",
+            storageBucket: "aula-inteligente-9a55e.firebasestorage.app",
+            messagingSenderId: "982907961913",
+            appId: "1:982907961913:web:529e99b299f214ce9483e8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Clave secreta que el alumno no conoce para evitar registros no autorizados
+        const TOKEN_SECRETO_MAESTRO = "PROFE2026*";
+
+        document.getElementById("btn-registrar-maestro").addEventListener("click", async function() {
+            const nombre = document.getElementById("doc-nombre").value.trim();
+            const usuario = document.getElementById("doc-usuario").value.trim();
+            const password = document.getElementById("doc-password").value;
+            const tokenIngresado = document.getElementById("doc-token").value;
+
+            if (!nombre || !usuario || !password || !tokenIngresado) {
+                alert("¡Atención! Todos los campos son obligatorios.");
+                return;
+            }
+
+            // 1. Barrera defensiva: Validar código secreto de maestro
+            if (tokenIngresado !== TOKEN_SECRETO_MAESTRO) {
+                alert("❌ Acceso denegado: El código de autorización docente es incorrecto. Los alumnos no pueden registrarse aquí.");
+                return;
+            }
+
+            // 2. Validar que la contraseña tenga estrictamente al menos 8 caracteres
+            if (password.length < 8) {
+                alert("⚠️ La contraseña de maestro debe tener al menos 8 caracteres.");
+                return;
+            }
+
+            try {
+                // Guardar en la colección exclusiva de maestros en Firestore
+                await addDoc(collection(db, "maestros"), {
+                    nombre: nombre,
+                    usuario: usuario,
+                    password: password,
+                    rol: "maestro",
+                    fecha_registro: new Date()
+                });
+
+                alert("¡Registro de maestro exitoso! Ya puedes iniciar sesión en el panel docente.");
+                window.close();
+
+            } catch (error) {
+                console.error("Error al registrar maestro: ", error);
+                alert("Hubo un error al conectar con la base de datos.");
+            }
+        });
+    </script>
+</body>
+</html>
