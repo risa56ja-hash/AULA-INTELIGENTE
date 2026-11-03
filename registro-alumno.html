@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Alumno - Aula Inteligente</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #10b981;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .registro-container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            box-sizing: border-box;
+            text-align: center;
+            border: 3px solid #e0e7ff;
+        }
+        h2 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        p {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: var(--primary);
+        }
+        .btn-registrar {
+            background-color: #f97316;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(249, 115, 22, 0.3);
+            transition: background-color 0.2s;
+        }
+        .btn-registrar:hover {
+            background-color: #ea580c;
+        }
+        .link-volver {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: underline;
+            display: block;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="registro-container">
+        <h2>🎓 ¡Regístrate en Aula Inteligente!</h2>
+        <p>Sección Alumnos - Crea tu cuenta para comenzar</p>
+
+        <div class="input-group">
+            <label>Nombre:</label>
+            <input type="text" id="reg-nombre" placeholder="Tu nombre completo">
+        </div>
+
+        <div class="input-group">
+            <label>ID (nombre de usuario):</label>
+            <input type="text" id="reg-usuario" placeholder="Ej. alex123">
+        </div>
+
+        <div class="input-group">
+            <label>Contraseña:</label>
+            <input type="password" id="reg-password" placeholder="Mín. 8 carac., 1 mayús., 1 número y 1 símbolo">
+        </div>
+
+        <div class="input-group">
+            <label>Grupo:</label>
+            <input type="text" id="reg-grupo" placeholder="Ej. 3°B">
+        </div>
+
+        <button class="btn-registrar" onclick="validarYGuardarAlumno()">🚀 ¡REGISTRAR CUENTA ALUMNO!</button>
+        
+        <span class="link-volver" onclick="window.close()">Cerrar ventana</span>
+    </div>
+
+    <!-- Importa los SDKs de Firebase (Versión Modular 9+) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 1. Configuración de tu proyecto en Firebase (reemplaza con tus datos reales)
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_AUTH_DOMAIN",
+            projectId: "TU_PROJECT_ID",
+            storageBucket: "TU_STORAGE_BUCKET",
+            messagingSenderId: "TU_MESSAGING_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Hacemos la función accesible globalmente para el botón
+        window.validarYGuardarAlumno = async function() {
+            const nombre = document.getElementById("reg-nombre").value.trim();
+            const usuario = document.getElementById("reg-usuario").value.trim();
+            const password = document.getElementById("reg-password").value;
+            const grupo = document.getElementById("reg-grupo").value.trim();
+
+            // 2. Validar que no haya campos vacíos
+            if (!nombre || !usuario || !password || !grupo) {
+                alert("¡Atención crack! Por favor llena todos los campos.");
+                return;
+            }
+
+            // 3. Regla estricta de contraseña (Mín. 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo)
+            const regexPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+            if (!regexPassword.test(password)) {
+                alert("La contraseña no cumple con los requisitos de seguridad:\n- Mínimo 8 caracteres\n- Al menos una letra mayúscula\n- Al menos una letra minúscula\n- Al menos un número\n- Al menos un símbolo especial (@$!%*?&)");
+                return;
+            }
+
+            try {
+                // 4. Guardar separado por grupo en Firestore
+                // Creamos o aseguramos el documento del grupo
+                const grupoRef = doc(db, "grupos", grupo);
+                await setDoc(grupoRef, { nombre_grupo: grupo }, { merge: true });
+
+                // Guardamos al alumno dentro de la subcolección de ese grupo específico
+                await addDoc(collection(db, "grupos", grupo, "alumnos"), {
+                    nombre: nombre,
+                    usuario: usuario,
+                    password: password, // En producción recuerda encriptarla
+                    rol: "alumno",
+                    fecha_registro: new Date()
+                });
+
+                alert(`¡Jugada exitosa! Alumno registrado en el grupo ${grupo} correctamente.`);
+                window.close(); // Cierra la ventana de registro
+
+            } catch (error) {
+                console.error("Error al guardar en Firebase: ", error);
+                alert("Hubo un error al conectar con la base de datos.");
+            }
+        }
+    </script>
+</body>
+</html>
