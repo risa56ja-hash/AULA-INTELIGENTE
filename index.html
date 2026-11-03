@@ -187,10 +187,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Escuchador del botón ¡COMENZAR EL APRENDIZAJE!
         document.getElementById("btn-login-alumno").addEventListener("click", async () => {
             const usuarioIngresado = document.getElementById("log-alumno-usuario").value.trim();
             const passwordIngresada = document.getElementById("log-alumno-password").value;
+            const btnLogin = document.getElementById("btn-login-alumno");
 
             if (!usuarioIngresado || !passwordIngresada) {
                 alert("¡Por favor ingresa tu ID de usuario y tu contraseña!");
@@ -198,13 +198,18 @@
             }
 
             try {
-                // Buscamos en todas las subcolecciones "alumnos" dentro de cualquier grupo
+                // Indicador visual en el botón de que está buscando en la base de datos
+                btnLogin.textContent = "Verificando jugada...";
+                btnLogin.disabled = true;
+
                 const alumnosRef = collectionGroup(db, "alumnos");
                 const q = query(alumnosRef, where("usuario", "==", usuarioIngresado));
                 const querySnapshot = await getDocs(q);
 
                 if (querySnapshot.empty) {
-                    alert("❌ El usuario ingresado no existe. Por favor verifica tus datos o regístrate.");
+                    alert("❌ El usuario ingresado no existe en la base de datos.");
+                    btnLogin.textContent = "¡COMENZAR EL APRENDIZAJE!";
+                    btnLogin.disabled = false;
                     return;
                 }
 
@@ -220,18 +225,19 @@
                 });
 
                 if (usuarioValido) {
-                    // Guardamos el nombre en el almacenamiento local para mostrarlo en el panel
                     localStorage.setItem("alumno_nombre", datosAlumno.nombre);
-                    
-                    // Redirigimos al panel del alumno
                     window.location.href = "panel-alumno.html";
                 } else {
                     alert("❌ Contraseña incorrecta. Inténtalo de nuevo.");
+                    btnLogin.textContent = "¡COMENZAR EL APRENDIZAJE!";
+                    btnLogin.disabled = false;
                 }
 
             } catch (error) {
-                console.error("Error al iniciar sesión: ", error);
-                alert("Hubo un error al conectar con Firebase: " + error.message);
+                console.error("Error detallado en Firebase: ", error);
+                alert("Error al conectar con Firebase: " + error.message);
+                btnLogin.textContent = "¡COMENZAR EL APRENDIZAJE!";
+                btnLogin.disabled = false;
             }
         });
     </script>
