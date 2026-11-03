@@ -125,24 +125,27 @@
         <span class="link-volver" onclick="window.close()">Cerrar ventana</span>
     </div>
 
-    <!-- Importa los SDKs de Firebase (Versión Modular 9+) -->
+    <!-- Importa los SDKs de Firebase y configura la conexión con credenciales reales -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
-        // 1. Configuración de tu proyecto en Firebase (reemplaza con tus datos reales)
+        // Configuración de tu proyecto en Firebase con llaves reales
         const firebaseConfig = {
-            apiKey: "TU_API_KEY",
-            authDomain: "TU_AUTH_DOMAIN",
-            projectId: "TU_PROJECT_ID",
-            storageBucket: "TU_STORAGE_BUCKET",
-            messagingSenderId: "TU_MESSAGING_SENDER_ID",
-            appId: "TU_APP_ID"
+            apiKey: "AIzaSyCR66VKjOx8iXJMxEBLejY6qLKIZ53FVLw",
+            authDomain: "aula-inteligente-9a55e.firebaseapp.com",
+            projectId: "aula-inteligente-9a55e",
+            storageBucket: "aula-inteligente-9a55e.firebasestorage.app",
+            messagingSenderId: "982907961913",
+            appId: "1:982907961913:web:529e99b299f214ce9483e8",
+            measurementId: "G-HSXF0BN7BQ"
         };
 
-        // Inicializar Firebase
+        // Inicializar Firebase y Analytics
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const analytics = getAnalytics(app);
 
         // Hacemos la función accesible globalmente para el botón
         window.validarYGuardarAlumno = async function() {
@@ -151,13 +154,13 @@
             const password = document.getElementById("reg-password").value;
             const grupo = document.getElementById("reg-grupo").value.trim();
 
-            // 2. Validar que no haya campos vacíos
+            // 1. Validar que no haya campos vacíos
             if (!nombre || !usuario || !password || !grupo) {
                 alert("¡Atención crack! Por favor llena todos los campos.");
                 return;
             }
 
-            // 3. Regla estricta de contraseña (Mín. 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo)
+            // 2. Regla estricta de contraseña (Mín. 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo)
             const regexPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
             if (!regexPassword.test(password)) {
@@ -166,16 +169,14 @@
             }
 
             try {
-                // 4. Guardar separado por grupo en Firestore
-                // Creamos o aseguramos el documento del grupo
+                // 3. Guardar separado por grupo en Firestore (Colección "grupos" -> Documento grupo -> Subcolección "alumnos")
                 const grupoRef = doc(db, "grupos", grupo);
                 await setDoc(grupoRef, { nombre_grupo: grupo }, { merge: true });
 
-                // Guardamos al alumno dentro de la subcolección de ese grupo específico
                 await addDoc(collection(db, "grupos", grupo, "alumnos"), {
                     nombre: nombre,
                     usuario: usuario,
-                    password: password, // En producción recuerda encriptarla
+                    password: password, 
                     rol: "alumno",
                     fecha_registro: new Date()
                 });
