@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Alumno - Aula Inteligente</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .panel-container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* --- BARRA DE NAVEGACIÓN SUPERIOR --- */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .brand {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-nav {
+            background: #ffffff;
+            border: 2px solid #0f172a;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .btn-nav:hover {
+            background: #f1f5f9;
+        }
+
+        /* Menú Desplegable de Materias */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #ffffff;
+            min-width: 180px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .dropdown-content a {
+            color: var(--text-main);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-weight: 500;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #e0e7ff;
+            color: var(--primary);
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* --- TARJETA DE BIENVENIDA Y PROGRESO --- */
+        .welcome-card {
+            background: linear-gradient(180deg, #ffe4e6 0%, #ffffff 40%);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #fecdd3;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .welcome-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 20px;
+        }
+
+        .summary-box {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .summary-subtitle {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+
+        .progress-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .progress-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .subject-icon {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+        }
+
+        .progress-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #334155;
+            min-width: 220px;
+        }
+
+        /* Estilo personalizado para la barra de bloques por segmentos */
+        .segmented-progress {
+            display: flex;
+            gap: 4px;
+            flex-grow: 1;
+            max-width: 300px;
+        }
+
+        .segment {
+            height: 14px;
+            flex: 1;
+            border-radius: 4px;
+            background-color: #e2e8f0;
+        }
+
+        /* Segmentos activos de Matemáticas (Verde) */
+        .segment-math.active {
+            background-color: #34d399;
+        }
+
+        /* Segmentos activos de Español (Café / Naranja) */
+        .segment-spanish.active {
+            background-color: #d97706;
+        }
+
+        /* --- TABLA DE CALIFICACIONES --- */
+        .grades-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid #e2e8f0;
+        }
+
+        .grades-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: #ffffff;
+            color: #0f172a;
+            font-weight: bold;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .grade-val {
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .star-icon {
+            color: #fbbf24;
+            margin-left: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="panel-container">
+
+        <!-- 1. BARRA SUPERIOR DE NAVEGACIÓN -->
+        <header class="top-nav">
+            <div class="brand">
+                🎓 Aula Inteligente
+            </div>
+            <nav class="nav-buttons">
+                <button class="btn-nav">Progreso</button>
+
+                <!-- Menú Desplegable de Materias -->
+                <div class="dropdown">
+                    <button class="btn-nav">Materias ▾</button>
+                    <div class="dropdown-content">
+                        <a href="#matematicas">📐 Matemáticas</a>
+                        <a href="#espanol">📚 Español</a>
+                    </div>
+                </div>
+
+                <button class="btn-nav" id="btn-cerrar-sesion">cerrar sesión 🔒</button>
+            </nav>
+        </header>
+
+        <!-- 2. TARJETA DE BIENVENIDA Y PROGRESO POR MATERIA -->
+        <section class="welcome-card">
+            <!-- El nombre se actualizará dinámicamente según la cuenta iniciada -->
+            <div class="welcome-title" id="saludo-alumno">
+                ¡Bienvenido, <span id="nombre-usuario-txt">Alumno</span>! Nos alegra verte hoy.
+            </div>
+
+            <div class="summary-box">
+                <div class="summary-subtitle">Tu Resumen Semanal</div>
+
+                <!-- Progreso en Matemáticas -->
+                <div class="progress-row">
+                    <div class="subject-icon">📐</div>
+                    <div class="progress-label">tu progreso en matemáticas es:</div>
+                    <div class="segmented-progress">
+                        <div class="segment segment-math active"></div>
+                        <div class="segment segment-math active"></div>
+                        <div class="segment segment-math active"></div>
+                        <div class="segment segment-math active"></div>
+                        <div class="segment segment-math active"></div>
+                        <div class="segment segment-math active"></div>
+                        <div class="segment"></div>
+                    </div>
+                </div>
+
+                <!-- Progreso en Español -->
+                <div class="progress-row">
+                    <div class="subject-icon">📚</div>
+                    <div class="progress-label">tu progreso en español es:</div>
+                    <div class="segmented-progress">
+                        <div class="segment segment-spanish active"></div>
+                        <div class="segment segment-spanish active"></div>
+                        <div class="segment segment-spanish active"></div>
+                        <div class="segment segment-spanish active"></div>
+                        <div class="segment segment-spanish active"></div>
+                        <div class="segment"></div>
+                        <div class="segment"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. SECCIÓN DE CALIFICACIONES -->
+        <section class="grades-card">
+            <div class="grades-title">Mis Calificaciones</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Materia</th>
+                        <th>Unidad</th>
+                        <th>Calificación</th>
+                        <th>Comentarios</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-calificaciones-body">
+                    <tr>
+                        <td>Matemáticas</td>
+                        <td>Unidad 1</td>
+                        <td><span class="grade-val">6.0</span> <span class="star-icon">⭐</span></td>
+                        <td>Comentarios con matemáticas</td>
+                    </tr>
+                    <tr>
+                        <td>Español</td>
+                        <td>Unidad 2</td>
+                        <td><span class="grade-val">5.5</span> <span class="star-icon">⭐</span></td>
+                        <td>Comentarios con español</td>
+                    </tr>
+                    <tr>
+                        <td>Matemáticas</td>
+                        <td>Unidad 3</td>
+                        <td><span class="grade-val">8.0</span> <span class="star-icon">⭐</span></td>
+                        <td>Comentarios con matemáticas</td>
+                    </tr>
+                    <tr>
+                        <td>Español</td>
+                        <td>Unidad 4</td>
+                        <td><span class="grade-val">6.0</span> <span class="star-icon">⭐</span></td>
+                        <td>Comentarios con español</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <!-- SCRIPT DE CONTROL PARA EL PANEL -->
+    <script>
+        // Cargar el nombre del alumno si viene guardado en el almacenamiento local (localStorage)
+        document.addEventListener("DOMContentLoaded", () => {
+            const nombreGuardado = localStorage.getItem("alumno_nombre");
+            if (nombreGuardado) {
+                document.getElementById("nombre-usuario-txt").textContent = nombreGuardado;
+            }
+        });
+
+        // Evento para cerrar sesión y regresar al login principal
+        document.getElementById("btn-cerrar-sesion").addEventListener("click", () => {
+            localStorage.removeItem("alumno_nombre");
+            window.location.href = "index.html";
+        });
+    </script>
+</body>
+</html>
