@@ -173,7 +173,7 @@
     <!-- SCRIPT MODULAR PARA INICIAR SESIÓN CON FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collectionGroup, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCR66VKjOx8iXJMxEBLejY6qLKIZ53FVLw",
@@ -198,37 +198,33 @@
             }
 
             try {
-                // Indicador visual en el botón de que está buscando en la base de datos
                 btnLogin.textContent = "Verificando jugada...";
                 btnLogin.disabled = true;
 
-                const alumnosRef = collectionGroup(db, "alumnos");
-                const q = query(alumnosRef, where("usuario", "==", usuarioIngresado));
-                const querySnapshot = await getDocs(q);
-
-                if (querySnapshot.empty) {
-                    alert("❌ El usuario ingresado no existe en la base de datos.");
-                    btnLogin.textContent = "¡COMENZAR EL APRENDIZAJE!";
-                    btnLogin.disabled = false;
-                    return;
-                }
-
+                // Estrategia táctica: Obtenemos todos los grupos primero
+                const gruposSnapshot = await getDocs(collection(db, "grupos"));
                 let usuarioValido = false;
                 let datosAlumno = null;
 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    if (data.password === passwordIngresada) {
-                        usuarioValido = true;
-                        datosAlumno = data;
-                    }
-                });
+                // Recorremos cada grupo para buscar en su subcolección "alumnos" localmente
+                for (const grupoDoc of gruposSnapshot.docs) {
+                    const alumnosRef = collection(db, "grupos", grupoDoc.id, "alumnos");
+                    const alumnosSnapshot = await getDocs(alumnosRef);
+
+                    alumnosSnapshot.forEach((docAlumno) => {
+                        const data = docAlumno.data();
+                        if (data.usuario === usuarioIngresado && data.password === passwordIngresada) {
+                            usuarioValido = true;
+                            datosAlumno = data;
+                        }
+                    });
+                }
 
                 if (usuarioValido) {
                     localStorage.setItem("alumno_nombre", datosAlumno.nombre);
                     window.location.href = "panel-alumno.html";
                 } else {
-                    alert("❌ Contraseña incorrecta. Inténtalo de nuevo.");
+                    alert("❌ Usuario o contraseña incorrectos. Inténtalo de nuevo.");
                     btnLogin.textContent = "¡COMENZAR EL APRENDIZAJE!";
                     btnLogin.disabled = false;
                 }
