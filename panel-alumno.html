@@ -165,7 +165,7 @@
             min-width: 220px;
         }
 
-        /* Estilo personalizado para la barra de bloques por segmentos */
+        /* Barra de bloques por segmentos (Todos inactivos por defecto al arrancar de cero) */
         .segmented-progress {
             display: flex;
             gap: 4px;
@@ -178,16 +178,6 @@
             flex: 1;
             border-radius: 4px;
             background-color: #e2e8f0;
-        }
-
-        /* Segmentos activos de Matemáticas (Verde) */
-        .segment-math.active {
-            background-color: #34d399;
-        }
-
-        /* Segmentos activos de Español (Café / Naranja) */
-        .segment-spanish.active {
-            background-color: #d97706;
         }
 
         /* --- TABLA DE CALIFICACIONES --- */
@@ -225,14 +215,11 @@
             border-bottom: 2px solid #e2e8f0;
         }
 
-        .grade-val {
-            font-weight: bold;
-            color: #1e293b;
-        }
-
-        .star-icon {
-            color: #fbbf24;
-            margin-left: 4px;
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px;
+            font-style: italic;
         }
     </style>
 </head>
@@ -261,9 +248,8 @@
             </nav>
         </header>
 
-        <!-- 2. TARJETA DE BIENVENIDA Y PROGRESO POR MATERIA -->
+        <!-- 2. TARJETA DE BIENVENIDA Y PROGRESO (DESDE CERO) -->
         <section class="welcome-card">
-            <!-- El nombre se actualizará dinámicamente según la cuenta iniciada -->
             <div class="welcome-title" id="saludo-alumno">
                 ¡Bienvenido, <span id="nombre-usuario-txt">Alumno</span>! Nos alegra verte hoy.
             </div>
@@ -271,31 +257,31 @@
             <div class="summary-box">
                 <div class="summary-subtitle">Tu Resumen Semanal</div>
 
-                <!-- Progreso en Matemáticas -->
+                <!-- Progreso en Matemáticas (En Cero) -->
                 <div class="progress-row">
                     <div class="subject-icon">📐</div>
                     <div class="progress-label">tu progreso en matemáticas es:</div>
                     <div class="segmented-progress">
-                        <div class="segment segment-math active"></div>
-                        <div class="segment segment-math active"></div>
-                        <div class="segment segment-math active"></div>
-                        <div class="segment segment-math active"></div>
-                        <div class="segment segment-math active"></div>
-                        <div class="segment segment-math active"></div>
+                        <div class="segment"></div>
+                        <div class="segment"></div>
+                        <div class="segment"></div>
+                        <div class="segment"></div>
+                        <div class="segment"></div>
+                        <div class="segment"></div>
                         <div class="segment"></div>
                     </div>
                 </div>
 
-                <!-- Progreso en Español -->
+                <!-- Progreso en Español (En Cero) -->
                 <div class="progress-row">
                     <div class="subject-icon">📚</div>
                     <div class="progress-label">tu progreso en español es:</div>
                     <div class="segmented-progress">
-                        <div class="segment segment-spanish active"></div>
-                        <div class="segment segment-spanish active"></div>
-                        <div class="segment segment-spanish active"></div>
-                        <div class="segment segment-spanish active"></div>
-                        <div class="segment segment-spanish active"></div>
+                        <div class="segment"></div>
+                        <div class="segment"></div>
+                        <div class="segment"></div>
+                        <div class="segment"></div>
+                        <div class="segment"></div>
                         <div class="segment"></div>
                         <div class="segment"></div>
                     </div>
@@ -303,7 +289,7 @@
             </div>
         </section>
 
-        <!-- 3. SECCIÓN DE CALIFICACIONES -->
+        <!-- 3. SECCIÓN DE CALIFICACIONES (LIMPIA / VACÍA) -->
         <section class="grades-card">
             <div class="grades-title">Mis Calificaciones</div>
             <table>
@@ -317,28 +303,7 @@
                 </thead>
                 <tbody id="tabla-calificaciones-body">
                     <tr>
-                        <td>Matemáticas</td>
-                        <td>Unidad 1</td>
-                        <td><span class="grade-val">6.0</span> <span class="star-icon">⭐</span></td>
-                        <td>Comentarios con matemáticas</td>
-                    </tr>
-                    <tr>
-                        <td>Español</td>
-                        <td>Unidad 2</td>
-                        <td><span class="grade-val">5.5</span> <span class="star-icon">⭐</span></td>
-                        <td>Comentarios con español</td>
-                    </tr>
-                    <tr>
-                        <td>Matemáticas</td>
-                        <td>Unidad 3</td>
-                        <td><span class="grade-val">8.0</span> <span class="star-icon">⭐</span></td>
-                        <td>Comentarios con matemáticas</td>
-                    </tr>
-                    <tr>
-                        <td>Español</td>
-                        <td>Unidad 4</td>
-                        <td><span class="grade-val">6.0</span> <span class="star-icon">⭐</span></td>
-                        <td>Comentarios con español</td>
+                        <td colspan="4" class="empty-state">Aún no hay calificaciones registradas. ¡Comienza tus lecciones para ganar estrellas! ⭐</td>
                     </tr>
                 </tbody>
             </table>
@@ -348,7 +313,7 @@
 
     <!-- SCRIPT DE CONTROL PARA EL PANEL -->
     <script>
-        // Cargar el nombre del alumno si viene guardado en el almacenamiento local (localStorage)
+        // Cargar el nombre del alumno desde el almacenamiento local
         document.addEventListener("DOMContentLoaded", () => {
             const nombreGuardado = localStorage.getItem("alumno_nombre");
             if (nombreGuardado) {
